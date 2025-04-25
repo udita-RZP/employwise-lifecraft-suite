@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
@@ -17,7 +17,17 @@ import {
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>("hr"); // Default for development
   const location = useLocation();
+
+  useEffect(() => {
+    // Get user info from localStorage
+    const userStr = localStorage.getItem("employwise-user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      setUserRole(user.role);
+    }
+  }, []);
 
   const menuItems = [
     {
@@ -70,9 +80,6 @@ export const Sidebar = () => {
     },
   ];
 
-  // Mock user role - would come from auth in real implementation
-  const userRole = "hr";
-
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
@@ -101,7 +108,7 @@ export const Sidebar = () => {
       <div className="flex flex-col flex-1 overflow-y-auto py-4">
         <nav className="space-y-1 px-2">
           {menuItems
-            .filter(item => item.roles.includes(userRole))
+            .filter(item => userRole ? item.roles.includes(userRole) : false)
             .map((item) => (
               <NavLink
                 key={item.path}
